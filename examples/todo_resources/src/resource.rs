@@ -67,7 +67,7 @@ impl<'f> RocketResource for TaskResource<'f> {
     }
 }
 
-mod boiterplate {
+mod boilerplate {
     use super::TaskResource;
     use rocket;
     use rocket_resources::RocketResource;
@@ -206,7 +206,7 @@ mod boiterplate {
 } 
 
 pub fn routes() -> Vec<rocket::Route> {
-    boiterplate::STATIC_ROUTES_FOR_RESOURCE_TASK
+    boilerplate::STATIC_ROUTES_FOR_RESOURCE_TASK
         .iter()
         .map(From::from)
         .collect::<Vec<rocket::Route>>()
