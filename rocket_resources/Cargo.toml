@@ -1,0 +1,7 @@
+[package]
+name = "rocket_resources"
+version = "0.1.0"
+authors = ["Quentin Laveau <qlaveau@gmail.com>"]
+
+[dependencies]
+rocket = "0.2.4"
