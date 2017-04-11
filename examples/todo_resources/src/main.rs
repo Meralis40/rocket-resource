@@ -9,13 +9,14 @@ extern crate serde_json;
 extern crate rocket_contrib;
 extern crate r2d2;
 extern crate r2d2_diesel;
+extern crate rocket_resources;
 
 mod static_files;
 mod task;
 mod db;
+mod resource;
 
-use rocket::request::{Form, FlashMessage};
-use rocket::response::{Flash, Redirect};
+use rocket::request::FlashMessage;
 use rocket_contrib::Template;
 
 use task::Task;
@@ -32,7 +33,7 @@ impl<'a, 'b> Context<'a, 'b> {
         Context{msg: msg, tasks: Task::all(conn)}
     }
 }
-
+/*
 #[post("/", data = "<todo_form>")]
 fn new(todo_form: Form<Task>, conn: db::Conn) -> Flash<Redirect> {
     let todo = todo_form.into_inner();
@@ -62,6 +63,7 @@ fn delete(id: i32, conn: db::Conn) -> Result<Flash<Redirect>, Template> {
         Err(Template::render("index", &Context::err(&conn, "Couldn't delete task.")))
     }
 }
+*/
 
 #[get("/")]
 fn index(msg: Option<FlashMessage>, conn: db::Conn) -> Template {
@@ -75,6 +77,6 @@ fn main() {
     rocket::ignite()
         .manage(db::init_pool())
         .mount("/", routes![index, static_files::all])
-        .mount("/todo/", routes![new, toggle, delete])
+        .mount("/todo/", resource::routes())
         .launch();
 }
