@@ -14,15 +14,19 @@ pub trait RocketResource {
     type DeleteResponse: for<'r> response::Responder<'r>;
     type Input: data::FromData;
 
+    /// POST <resource rel>/
     fn create(input: Self::Input, format: http::ContentType, requirements: Self::Requirements)
         -> Self::CreateResponse;
 
+    /// GET <resource rel>/<id>
     fn read(id: Self::Id, format: http::ContentType, requirements: Self::Requirements)
         -> Self::ReadResponse;
 
+    /// PATCH <resource rel>/<id>
     fn update(input: Self::Input, id: Self::Id, format: http::ContentType, requirements: Self::Requirements)
         -> Self::UpdateResponse;
 
+    /// DELETE <resource rel>/<id>
     fn delete(id: Self::Id, format: http::ContentType, requirements: Self::Requirements)
         -> Self::DeleteResponse;
 }
