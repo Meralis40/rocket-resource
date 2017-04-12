@@ -44,3 +44,132 @@ impl data::FromData for NothingInput {
     }
 }
 
+pub mod boilerplate {
+    use super::RocketResource;
+    use rocket;
+
+    use rocket::data::FromData;
+    use rocket::request::FromRequest;
+    use rocket::response::Responder;
+    use rocket::outcome::Outcome::*;
+    use rocket::http;
+
+    pub fn create_handler<'r, T: RocketResource>(request: &'r rocket::Request, data: rocket::Data) 
+        -> rocket::handler::Outcome<'r>
+    {
+        let requirements = match <<T as RocketResource>::Requirements as FromRequest>::from_request(request) {
+            Success(val)         => val,
+            Forward(_)           => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let format = match <http::ContentType as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let input = match <<T as RocketResource>::InputCreate as FromData>::from_data(request, data) {
+            Success(val) => val,
+            Forward(data) => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let response = <T as RocketResource>::create(input, format, requirements);
+
+        match response.respond() {
+            Ok(x) => Success(x),
+            Err(y) => Failure(y),
+        }
+    }
+
+    pub fn read_handler<'r, T: RocketResource>(request: &'r rocket::Request, data: rocket::Data)
+        -> rocket::handler::Outcome<'r>
+    {
+        let requirements = match <<T as RocketResource>::Requirements as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let format = match <http::ContentType as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let id = match request.get_param::<<T as RocketResource>::Id>(0) {
+            Ok(x) => x,
+            Err(_) => return Failure(http::Status::BadRequest),
+        };
+
+        let response = <T as RocketResource>::read(id, format, requirements);
+
+        match response.respond() {
+            Ok(x) => Success(x),
+            Err(y) => Failure(y),
+        }
+    }
+
+    pub fn update_handler<'r, T: RocketResource>(request: &'r rocket::Request, data: rocket::Data) 
+        -> rocket::handler::Outcome<'r> 
+    {
+        let requirements = match <<T as RocketResource>::Requirements as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let format = match <http::ContentType as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let id = match request.get_param::<<T as RocketResource>::Id>(0) {
+            Ok(x) => x,
+            Err(_) => return Failure(http::Status::BadRequest),
+        };
+
+        let input = match <<T as RocketResource>::InputUpdate as FromData>::from_data(request, data) {
+            Success(val) => val,
+            Forward(data) => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let response = <T as RocketResource>::update(input, id, format, requirements);
+
+        match response.respond() {
+            Ok(x) => Success(x),
+            Err(y) => Failure(y),
+        }
+    }
+
+    pub fn delete_handler<'r, T: RocketResource>(request: &'r rocket::Request, data: rocket::Data) 
+        -> rocket::handler::Outcome<'r> 
+    {
+        let requirements = match <<T as RocketResource>::Requirements as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let format = match <http::ContentType as FromRequest>::from_request(request) {
+            Success(val) => val,
+            Forward(_)   => return Forward(data),
+            Failure((status, _)) => return Failure(status),
+        };
+
+        let id = match request.get_param::<<T as RocketResource>::Id>(0) {
+            Ok(x) => x,
+            Err(_) => return Failure(http::Status::BadRequest),
+        };
+
+        let response = <T as RocketResource>::delete(id, format, requirements);
+
+        match response.respond() {
+            Ok(x) => Success(x),
+            Err(y) => Failure(y),
+        }
+    }
+}

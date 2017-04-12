@@ -70,110 +70,28 @@ impl<'f> RocketResource for TaskResource<'f> {
 mod boilerplate {
     use super::TaskResource;
     use rocket;
-    use rocket_resources::RocketResource;
+    use rocket_resources::boilerplate;
 
-    use rocket::data::FromData;
-    use rocket::request::FromRequest;
-    use rocket::response::Responder;
-    use rocket::outcome::Outcome::*;
     use rocket::http;
 
-    fn create_handler<'r>(
-        request: &'r rocket::Request,
-        data: rocket::Data
-    ) -> rocket::handler::Outcome<'r> {
-        let requirements = match <<TaskResource<'r> as RocketResource>::Requirements as FromRequest>::from_request(request) {
-            Success(val) => val,
-            Forward(_)   => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let format = match <http::ContentType as FromRequest>::from_request(request) {
-            Success(val) => val,
-            Forward(_)   => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let input = match <<TaskResource<'r> as RocketResource>::InputCreate as FromData>::from_data(request, data) {
-            Success(val) => val,
-            Forward(data) => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let response = <TaskResource<'r> as RocketResource>::create(input, format, requirements);
-
-        match response.respond() {
-            Ok(x) => Success(x),
-            Err(y) => Failure(y),
-        }
+    fn create_handler<'r>(r: &'r rocket::Request, data: rocket::Data) -> rocket::handler::Outcome<'r> {
+        boilerplate::create_handler::<TaskResource<'r>>(r, data)
     }
 
-    fn update_handler<'r>(
-        request: &'r rocket::Request,
-        data: rocket::Data
-    ) -> rocket::handler::Outcome<'r> {
-        let requirements = match <<TaskResource<'r> as RocketResource>::Requirements as FromRequest>::from_request(request) {
-            Success(val) => val,
-            Forward(_)   => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let format = match <http::ContentType as FromRequest>::from_request(request) {
-            Success(val) => val,
-            Forward(_)   => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let id = match request.get_param::<<TaskResource<'r> as RocketResource>::Id>(0) {
-            Ok(x) => x,
-            Err(_) => return Failure(http::Status::BadRequest),
-        };
-
-        let input = match <<TaskResource<'r> as RocketResource>::InputUpdate as FromData>::from_data(request, data) {
-            Success(val) => val,
-            Forward(data) => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let response = <TaskResource<'r> as RocketResource>::update(input, id, format, requirements);
-
-        match response.respond() {
-            Ok(x) => Success(x),
-            Err(y) => Failure(y),
-        }
+    fn read_handler<'r>(r: &'r rocket::Request, d: rocket::Data) -> rocket::handler::Outcome<'r> {
+        boilerplate::read_handler::<TaskResource<'r>>(r, d)
     }
 
-    fn delete_handler<'r>(
-        request: &'r rocket::Request,
-        data: rocket::Data
-    ) -> rocket::handler::Outcome<'r> {
-        let requirements = match <<TaskResource<'r> as RocketResource>::Requirements as FromRequest>::from_request(request) {
-            Success(val) => val,
-            Forward(_)   => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
+    fn update_handler<'r>(r: &'r rocket::Request, d: rocket::Data) -> rocket::handler::Outcome<'r> {
+        boilerplate::update_handler::<TaskResource<'r>>(r, d)
+    }
 
-        let format = match <http::ContentType as FromRequest>::from_request(request) {
-            Success(val) => val,
-            Forward(_)   => return Forward(data),
-            Failure((status, _)) => return Failure(status),
-        };
-
-        let id = match request.get_param::<<TaskResource<'r> as RocketResource>::Id>(0) {
-            Ok(x) => x,
-            Err(_) => return Failure(http::Status::BadRequest),
-        };
-
-        let response = <TaskResource<'r> as RocketResource>::delete(id, format, requirements);
-
-        match response.respond() {
-            Ok(x) => Success(x),
-            Err(y) => Failure(y),
-        }
+    fn delete_handler<'r>(r: &'r rocket::Request, d: rocket::Data) -> rocket::handler::Outcome<'r> {
+        boilerplate::delete_handler::<TaskResource<'r>>(r, d)
     }
 
     pub(super) static
-    STATIC_ROUTES_FOR_RESOURCE_TASK : [rocket::StaticRouteInfo; 4] = [
+    STATIC_ROUTES_FOR_RESOURCE_TASK : [rocket::StaticRouteInfo; 5] = [
         rocket::StaticRouteInfo {
             method: http::Method::Post,
             path: "/",
@@ -202,6 +120,13 @@ mod boilerplate {
             rank: None,
             handler: delete_handler,
         },
+        rocket::StaticRouteInfo {
+            method: http::Method::Get,
+            path: "/<id>",
+            format: None,
+            rank: None,
+            handler: read_handler,
+        }
     ];
 } 
 
